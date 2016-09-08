@@ -10,6 +10,9 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.List;
 
 import retrofit.Callback;
@@ -28,6 +31,8 @@ public class DataInterest extends AppCompatActivity {
     //Strings to bind with intent will be used to send data to other activity
     public static final String KEY_INTEREST_ID = "id";
     public static final String KEY_INTEREST_HASTAG = "hastag";
+
+    String hashtag_kirim;
 
     //List of type books this list will store type Book which is our data model
     private List<Interest> interest;
@@ -125,6 +130,8 @@ public class DataInterest extends AppCompatActivity {
                             "Clicked Button Id :" + k,
                             Toast.LENGTH_LONG).show();
 
+                    hashtag_kirim += k+",";
+
                 }
             });
 
@@ -138,6 +145,78 @@ public class DataInterest extends AppCompatActivity {
 
 
 
+    }
+
+
+    private void kirimHastag() {
+
+
+        //Here we will handle the http request to insert user to mysql db
+        //Here we will handle the http request to insert user to mysql db
+        //Creating a RestAdapter
+
+        RestAdapter adapter = new RestAdapter.Builder()
+                .setEndpoint(ROOT_URL) //Setting the Root URL
+                .build(); //Finally building the adapter
+
+        //Creating object for our interface
+        HashtagAPI api = adapter.create(HashtagAPI.class);
+
+        //Defining the method insertuser of our interface
+        api.kirimHastagAPI(
+
+                hashtag_kirim,
+
+                //Creating an anonymous callback
+                new Callback<Response>() {
+                    @Override
+                    public void success(Response result, Response response) {
+                        //On success we will read the server's output using bufferedreader
+                        //Creating a bufferedreader object
+                        BufferedReader reader = null;
+
+                        //An string to store output from the server
+                        String output = "";
+
+                        try {
+                            //Initializing buffered reader
+                            reader = new BufferedReader(new InputStreamReader(result.getBody().in()));
+
+                            //Reading the output in the string
+                            output = reader.readLine();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+                        //Displaying the output as a toast
+                        /*
+                        Untuk proses development berikutnya
+                        programmer harus membuat apakah ada data yang di edit atau tidak
+                        kemudian programmer harus membedakan apakah user baru pertamakali login
+                        atau user ingin mengubah data dirinya
+                            #Perlu struktur looping yang lebih baik
+                            #HailHydra
+                        - Jika user cuman edit profil maka dapat langsung di bypass ke
+                          Activity DataInterest
+                         */
+                        Toast.makeText(DataInterest.this, output, Toast.LENGTH_LONG).show();
+                        String Success = "sukses";
+                        if (output.toLowerCase().contains(Success.toLowerCase())) {
+
+                            Intent i = new Intent(DataInterest.this, MainActivity.class);
+                            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                            startActivity(i);
+                        }
+
+                    }
+
+                    @Override
+                    public void failure(RetrofitError error) {
+                        //If any error occured displaying the error as toast
+                        Toast.makeText(DataInterest.this, error.toString(), Toast.LENGTH_LONG).show();
+                    }
+                }
+        );
     }
 
 
