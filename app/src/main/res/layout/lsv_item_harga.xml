@@ -1,0 +1,65 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@color/background_color"
+    android:orientation="vertical" >
+
+    <TextView
+        android:id="@+id/pid"
+        android:layout_width="match_parent"
+        android:layout_height="5dp"
+        android:visibility="gone" />
+
+
+    <ImageView
+        android:id="@+id/img_merek"
+        android:layout_width="match_parent"
+        android:layout_height="150dp"
+        android:layout_centerVertical="true"
+        android:scaleType="centerCrop"
+        android:src="@drawable/bg1" />
+
+    <!-- Child linear layout with horizontal orientation -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="90dp"
+        android:layout_alignBottom="@+id/img_merek"
+        android:background="@drawable/drawer_top_gradient"
+        android:gravity="bottom"
+        android:maxLines="2"
+        android:padding="10dp"
+        android:orientation="vertical"
+        >
+
+        <TextView
+            android:id="@+id/tvItem"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:maxLines="2"
+            android:padding="10dp"
+            android:text="XXX"
+            android:textColor="@color/white"
+            android:textSize="18sp"
+
+            />
+
+        <TextView
+            android:id="@+id/tvHarga"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:gravity="bottom"
+            android:maxLines="2"
+            android:padding="10dp"
+            android:text="500000"
+            android:textColor="@color/white"
+            android:textSize="18sp"
+
+            />
+
+    </LinearLayout>
+
+
+
+
+</RelativeLayout>
