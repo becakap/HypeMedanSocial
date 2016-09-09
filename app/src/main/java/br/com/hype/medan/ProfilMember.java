@@ -111,6 +111,10 @@ public class ProfilMember extends AppCompatActivity {
         edNamaDepan.setText(nama_depan);
         edNamaBelakang.setText(nama_belakang);
 
+        language    = "Bahasa Indonesia";
+        gender      = "Pria";
+        tahun_lahir = "1979";
+
         MaterialSpinner spinner = (MaterialSpinner) findViewById(R.id.spinner);
         spinner.setItems("Bahasa Indonesia", "English");
 
@@ -153,9 +157,12 @@ public class ProfilMember extends AppCompatActivity {
                 //Intent intent = new Intent(ProfilMember.this, DataInterest.class);
                 //intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 //startActivity(intent);
-
-                //insertUser();
-                createVerivikasi();
+                if(edPonsel.getText().toString().trim().length() > 0) {
+                    insertUser();
+                }else {
+                    Snackbar.make(v, "Harap Isi Nomor Ponsel Anda ", Snackbar.LENGTH_LONG).show();
+                }
+                //createVerivikasi();
 
 
 
@@ -309,9 +316,7 @@ public class ProfilMember extends AppCompatActivity {
                         Toast.makeText(ProfilMember.this, output, Toast.LENGTH_LONG).show();
                         String Success = "berhasil";
                         if (output.toLowerCase().contains(Success.toLowerCase())) {
-                            Intent i = new Intent(ProfilMember.this, MainActivity.class);
-                            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                            startActivity(i);
+                            createVerivikasi();
                         }
 
                     }

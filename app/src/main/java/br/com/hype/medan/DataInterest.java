@@ -1,14 +1,23 @@
 package br.com.hype.medan;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.Toast;
+
+import com.google.android.gms.appindexing.Action;
+import com.google.android.gms.appindexing.AppIndex;
+import com.google.android.gms.common.api.GoogleApiClient;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -22,8 +31,9 @@ import retrofit.client.Response;
 
 public class DataInterest extends AppCompatActivity {
 
-
-
+    //Shared Preferences untuk simpan data interest
+    public static final String profilPREFERENCES = "profilPreference";
+    SharedPreferences profilSharedpreferences;
 
     //Root URL of our web service
     public static final String ROOT_URL = "http://api.hypemedan.id/";
@@ -32,12 +42,17 @@ public class DataInterest extends AppCompatActivity {
     public static final String KEY_INTEREST_ID = "id";
     public static final String KEY_INTEREST_HASTAG = "hastag";
 
-    String hashtag_kirim;
+    String hashtag_kirim, email_kirim;
 
     //List of type books this list will store type Book which is our data model
     private List<Interest> interest;
 
     Button btnSubmit;
+    /**
+     * ATTENTION: This was auto-generated to implement the App Indexing API.
+     * See https://g.co/AppIndexing/AndroidStudio for more information.
+     */
+    private GoogleApiClient client;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,23 +60,37 @@ public class DataInterest extends AppCompatActivity {
         setContentView(R.layout.activity_data_interest);
         getInterest();
 
-        btnSubmit = (Button)findViewById(R.id.btnSubmit);
+
+        //fb_gplus social network name
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+
+        String social_email = preferences.getString(LoginActivity.PROFILE_EMAIL, "");
+        email_kirim = social_email;
+
+        btnSubmit = (Button) findViewById(R.id.btnSubmit);
         btnSubmit.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
+                hashtag_kirim = hashtag_kirim.replace("null", "");
+                profilSharedpreferences = getSharedPreferences(profilPREFERENCES, Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = profilSharedpreferences.edit();
+                editor.putString("interest", hashtag_kirim);
+                editor.commit();
 
-                Intent intent = new Intent(DataInterest.this, MainActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(intent);
+                kirimHastag();
+
 
             }
         });
 
 
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
     }
 
-    public void getInterest(){
+    public void getInterest() {
         //While the app fetched data we are displaying a progress dialog
-        final ProgressDialog loading = ProgressDialog.show(this,"Fetching Data","Please wait...",false,false);
+        final ProgressDialog loading = ProgressDialog.show(this, "Fetching Data", "Please wait...", false, false);
 
         //Creating a rest adapter
         RestAdapter adapter = new RestAdapter.Builder()
@@ -94,7 +123,7 @@ public class DataInterest extends AppCompatActivity {
     }
 
     //Our method to show list
-    private void showInterest(){
+    private void showInterest() {
         //String array to store all the book names
         String[] items = new String[interest.size()];
 
@@ -106,7 +135,7 @@ public class DataInterest extends AppCompatActivity {
                 ActionBar.LayoutParams.WRAP_CONTENT, ActionBar.LayoutParams.WRAP_CONTENT);
 
         //Traversing through the whole list to get all the names
-        for(int i=0; i<interest.size(); i++){
+        for (int i = 0; i < interest.size(); i++) {
             // Create LinearLayout
             LinearLayout ll = new LinearLayout(this);
             ll.setOrientation(LinearLayout.VERTICAL);
@@ -115,7 +144,7 @@ public class DataInterest extends AppCompatActivity {
             final Button btn = new Button(this);
 
             // Give button an ID
-            btn.setId(i+1);
+            btn.setId(i + 1);
             btn.setText(interest.get(i).getHastag());
             // set the layoutParams on the button
             btn.setLayoutParams(params);
@@ -125,12 +154,30 @@ public class DataInterest extends AppCompatActivity {
             btn.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
 
-                    String k = String.valueOf(btn.getId());
-                    Toast.makeText(getApplicationContext(),
-                            "Clicked Button Id :" + k,
-                            Toast.LENGTH_LONG).show();
 
-                    hashtag_kirim += k+",";
+                   /* int color = -16711681;
+
+                    ColorDrawable buttonColor = (ColorDrawable) btn.getBackground();
+                    int colorId = buttonColor.getColor();
+
+                    if (colorId == -16711681) {
+
+                        btn.setBackgroundColor(Color.GRAY);
+
+                    }else{
+                        btn.setBackgroundColor(Color.CYAN);
+                    }
+                    */
+
+
+                    btn.setBackgroundColor(Color.MAGENTA);
+
+                    String k = String.valueOf(btn.getId());
+                   // Toast.makeText(getApplicationContext(),
+                   //         "Clicked Button Id :" + k,
+                    //        Toast.LENGTH_LONG).show();
+
+                    hashtag_kirim += k + ",";
 
                 }
             });
@@ -141,8 +188,6 @@ public class DataInterest extends AppCompatActivity {
             lm.addView(ll);
 
         }
-
-
 
 
     }
@@ -166,6 +211,7 @@ public class DataInterest extends AppCompatActivity {
         api.kirimHastagAPI(
 
                 hashtag_kirim,
+                email_kirim,
 
                 //Creating an anonymous callback
                 new Callback<Response>() {
@@ -199,6 +245,7 @@ public class DataInterest extends AppCompatActivity {
                         - Jika user cuman edit profil maka dapat langsung di bypass ke
                           Activity DataInterest
                          */
+                        Toast.makeText(DataInterest.this, email_kirim, Toast.LENGTH_LONG).show();
                         Toast.makeText(DataInterest.this, output, Toast.LENGTH_LONG).show();
                         String Success = "sukses";
                         if (output.toLowerCase().contains(Success.toLowerCase())) {
@@ -220,6 +267,43 @@ public class DataInterest extends AppCompatActivity {
     }
 
 
+    @Override
+    public void onStart() {
+        super.onStart();
 
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        client.connect();
+        Action viewAction = Action.newAction(
+                Action.TYPE_VIEW, // TODO: choose an action type.
+                "DataInterest Page", // TODO: Define a title for the content shown.
+                // TODO: If you have web page content that matches this app activity's content,
+                // make sure this auto-generated web page URL is correct.
+                // Otherwise, set the URL to null.
+                Uri.parse("http://host/path"),
+                // TODO: Make sure this auto-generated app URL is correct.
+                Uri.parse("android-app://br.com.hype.medan/http/host/path")
+        );
+        AppIndex.AppIndexApi.start(client, viewAction);
+    }
 
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        Action viewAction = Action.newAction(
+                Action.TYPE_VIEW, // TODO: choose an action type.
+                "DataInterest Page", // TODO: Define a title for the content shown.
+                // TODO: If you have web page content that matches this app activity's content,
+                // make sure this auto-generated web page URL is correct.
+                // Otherwise, set the URL to null.
+                Uri.parse("http://host/path"),
+                // TODO: Make sure this auto-generated app URL is correct.
+                Uri.parse("android-app://br.com.hype.medan/http/host/path")
+        );
+        AppIndex.AppIndexApi.end(client, viewAction);
+        client.disconnect();
+    }
 }

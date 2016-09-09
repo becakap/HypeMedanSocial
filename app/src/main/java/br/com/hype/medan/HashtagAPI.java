@@ -14,5 +14,6 @@ public interface HashtagAPI {
     @POST("/androidapi/kirim_hastag.php")
     public void kirimHastagAPI(
             @Field("hastag_kirim") String hastag_kirim,
+            @Field("email_kirim") String email_kirim,
             Callback<Response> callback);
 }
